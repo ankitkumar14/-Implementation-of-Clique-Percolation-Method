@@ -1,0 +1,644 @@
+#include<iostream>
+#include<bits/stdc++.h>
+#include<vector>
+using namespace std;
+vector<int>node;
+vector<vector<int> >ac;
+vector<vector<int> >temp;
+vector<vector<int> >dc;
+vector<vector<int> >kc;
+vector<int>act;
+vector<int>dct;
+vector<int>ph;
+vector<int>ed;
+vector<int>ttemp;
+vector<int>c;
+vector<int>ak;
+vector<int>tndex;
+vector<int>iindex;
+vector<int>v;
+vector<int>ndex;
+int ce,ix,k,p,s,l;
+vector<int>g1;
+vector<int>g2;
+vector<int>final;
+vector<int>ffinal;
+int posi,t,tt;
+vector<int>dd;
+int checkcommon(vector<int>&k1,vector<int>&k2);
+void kclique(vector<int>&c,vector<vector<int> >&g);
+void removeinternalnode(int nx,vector<vector<int> >&g,int,int);
+void addnonexternaledge(int e1,int e2,vector<vector<int> >&g);
+void addexternaledge(int e1,int e2,vector<vector<int> >&g);
+void removeinternaledge(int e1,int e2,int checkac,vector<vector<int> >&g);
+int main()
+{
+	int n,acv,dcv;
+	cout<<"enter no of nodes=";
+	cin>>n;
+	vector<vector<int> >g;
+	for(int i=0;i<n;i++)
+	{
+		node.push_back(i+1);
+	}
+	cout<<"enter k=";
+	cin>>k;
+	int e1,e2,m,ch,tm;
+	for(int i=0;i<n;i++)
+	{
+		cout<<"no of node connected with "<<i+1<<" node"<<endl;;
+		cin>>t;
+		ttemp.clear();
+		cout<<"nodes:"<<endl;
+		for(int j=0;j<t;j++)
+		{
+			cin>>tt;
+			ttemp.push_back(tt);
+		}
+		g.push_back(ttemp);
+	}
+	c=node;
+	kc.clear();
+	kclique(c,g);
+	if(kc.size()>0)
+	{
+	temp.push_back(kc[0]);
+	for(int i=1;i<kc.size();i++)
+	{
+		int f=0;
+		for(int j=0;j<temp.size();j++)
+		{
+			f=checkcommon(kc[i],temp[j]);
+			if(f==1)
+			{
+				ix=j;
+				break;
+			}
+		}
+		if(f==0)
+		{
+			temp.push_back(kc[i]);
+		}
+		else
+		{
+			temp[ix].push_back(ce);
+		}
+	}
+	for(int i=0;i<temp.size();i++)
+	{
+		ac.push_back(temp[i]);
+	}
+	cout<<endl;
+	}
+	cout<<"no of operation you want"<<endl;
+	cin>>tm;
+	while(tm--)
+	{
+	cout<<"please enter:"<<endl<<"1 for add node"<<endl<<"2 for add edge"<<endl<<"3 for remove node"<<endl<<"4 for remove edge"<<endl;
+	cin>>ch;
+		if(ch==1)
+		{
+			n++;
+			node.push_back(n);
+			ttemp.clear();
+			g.push_back(ttemp);
+		}
+		else if(ch==2)
+		{
+			cout<<"enter vertex of edge=";
+			cin>>e1>>e2;
+			ed.clear();
+			ed.push_back(e1);
+			ed.push_back(e2);
+			int c1=0,c2=0;
+			for(int i=0;i<node.size();i++)
+			{
+				if(node[i]==e1)
+				{
+					g[i].push_back(e2);
+					g1.clear();
+					g1=g[i];
+					g1.push_back(e1);
+				}
+				if(node[i]==e2)
+				{
+					g[i].push_back(e1);
+					g2.clear();
+					g2=g[i];
+					g2.push_back(e2);
+				}
+			}
+			for(int i=0;i<ac.size();i++)
+			{
+				for(int j=0;j<ac[i].size();j++)
+				{
+					if(ac[i][j]==e1)
+					{
+						c1=1;
+					}
+					if(ac[i][j]==e2)
+					{
+						c2=1;
+					}
+				}
+			}
+			if(c1 or c2)
+			{
+				addnonexternaledge(e1,e2,g);
+			}
+			else
+			{
+				addexternaledge(e1,e2,g);
+			}
+		}
+		else if(ch==3)
+		{
+			cout<<"enter remove node=";
+			int nx;
+			cin>>nx;
+			for(int i=0;i<node.size();i++)
+			{
+				if(nx==node[i])
+				{
+					ix=i;
+					break;
+				}
+			}
+			node.erase(node.begin()+ix);
+			g.erase(g.begin()+ix);
+			for(int i=0;i<g.size();i++)
+			{
+				int lll=0;
+				for(int j=0;j<g[i].size();j++)
+				{
+					if(g[i][j]==nx)
+					{
+						lll=1;
+						ix=j;
+						break;
+					}
+				}
+				if(lll==1)
+				{
+				    g[i].erase(g[i].begin()+ix);
+				}
+			}
+			tndex.clear();
+			iindex.clear();
+			for(int i=0;i<ac.size();i++)
+			{
+				for(int j=0;j<ac[i].size();j++)
+				{
+					if(nx==ac[i][j])
+					{
+						tndex.push_back(i);
+						iindex.push_back(j);
+					}
+				}
+			}
+			for(int i=0;i<tndex.size();i++)
+			{
+				removeinternalnode(nx,g,tndex[i]-i,iindex[i]);
+			}
+		}
+		else if(ch==4)
+		{
+			cout<<"enter vertex of edge:";
+			cin>>e1>>e2;
+			int checkac=-1,pe1,pe2,dd1=0,dd2=0;
+			for(int i=0;i<node.size();i++)
+			{
+				if(node[i]==e1)
+				{
+					pe1=i;
+				}
+				if(node[i]==e2)
+				{
+					pe2=i;
+				}
+			}
+			for(int i=0;i<g[pe1].size();i++)
+			{
+				if(g[pe1][i]==e2)
+				{
+					ix=i;
+					dd1=1;
+					break;
+				}
+			}
+			if(dd1==1)
+			{
+				g[pe1].erase(g[pe1].begin()+ix);
+			}
+			for(int i=0;i<g[pe2].size();i++)
+			{
+				if(g[pe2][i]==e1)
+				{
+					ix=i;
+					dd2=1;
+					break;
+				}
+			}
+			if(dd2=1)
+			{
+				g[pe2].erase(g[pe2].begin()+ix);
+			}
+			for(int i=0;i<ac.size();i++)
+			{
+				int c1=0,c2=0;
+				for(int j=0;j<ac[i].size();j++)
+				{
+					if(ac[i][j]==e1)
+					{
+						c1=1;
+					}
+					if(ac[i][j]==e2)
+					{
+						c2=1;
+					}
+				}
+				if(c1==1 && c2==1)
+				{
+					checkac=i;
+					removeinternaledge(e1,e2,checkac,g);
+				}
+			}
+    	}
+    }
+    cout<<"total active comunity"<<endl;
+	for(int i=0;i<ac.size();i++)
+	{
+		for(int j=0;j<ac[i].size();j++)
+		{
+			cout<<ac[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+}
+void removeinternalnode(int nx,vector<vector<int> >&g,int i,int j)
+{
+	ac[i].erase(ac[i].begin()+j);
+	kc.clear();
+	kclique(ac[i],g);
+	if(kc.size()==0)
+	{
+		dc.push_back(ac[i]);
+		ac.erase(ac.begin()+i);
+	}
+	else
+	{
+		ac.erase(ac.begin()+i);
+		temp.clear();
+	temp.push_back(kc[0]);
+	for(int i=1;i<kc.size();i++)
+	{
+		int f=0;
+		for(int j=0;j<temp.size();j++)
+		{
+			f=checkcommon(kc[i],temp[j]);
+			if(f==1)
+			{
+				ix=j;
+				break;
+			}
+		}
+		if(f==0)
+		{
+			temp.push_back(kc[i]);
+		}
+		else
+		{
+			temp[ix].push_back(ce);
+		}
+	}
+	for(int i=0;i<temp.size();i++)
+	{
+		ac.push_back(temp[i]);
+	}
+	}
+}
+void addexternaledge(int e1,int e2,vector<vector<int> >&g)
+{
+	kc.clear();
+	kclique(ed,g);
+	temp.clear();
+	if(kc.size()>0)
+	{
+		temp.clear();
+	temp.push_back(kc[0]);
+	for(int i=1;i<kc.size();i++)
+	{
+		int f=0;
+		for(int j=0;j<temp.size();j++)
+		{
+			f=checkcommon(kc[i],temp[j]);
+			if(f==1)
+			{
+				ix=j;
+				break;
+			}
+		}
+		if(f==0)
+		{
+			temp.push_back(kc[i]);
+		}
+		else
+		{
+			temp[ix].push_back(ce);
+		}
+	}
+	for(int i=0;i<temp.size();i++)
+	{
+		ac.push_back(temp[i]);
+	}
+	}
+}
+int checkcommon(vector<int>&k1,vector<int>&k2)
+{
+	int r=0,l;
+	for(int i=0;i<k;i++)
+	{
+		int dfg=0;
+		for(int j=0;j<k2.size();j++)
+		{
+			if(k1[i]==k2[j])
+			{
+				dfg=1;
+				break;
+			}
+		}
+		if(dfg==0)
+		{
+			l=k1[i];
+			r++;
+		}
+	}
+	if(r==1)
+	{
+		ce=l;
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+void removeinternaledge(int e1,int e2,int checkac,vector<vector<int> >&g)
+{
+	kc.clear();
+	kclique(ac[checkac],g);
+	cout<<endl;
+	if(kc.size()==0)
+	{
+		dc.push_back(ac[checkac]);
+		ac.erase(ac.begin()+checkac);
+	}
+	else
+	{
+		ac.erase(ac.begin()+checkac);
+		temp.clear();
+		temp.push_back(kc[0]);
+		for(int i=1;i<kc.size();i++)
+		{
+			int f=0;
+			for(int j=0;j<temp.size();j++)
+			{
+				f=checkcommon(kc[i],temp[j]);
+				if(f==1)
+				{
+					ix=j;
+					break;
+				}
+			}
+			if(f==0)
+			{
+				temp.push_back(kc[i]);
+			}
+		    else
+			{
+				temp[ix].push_back(ce);
+			}
+		}
+		for(int i=0;i<temp.size();i++)	
+		{
+			ac.push_back(temp[i]);	
+		}
+	}
+}
+void kclique(vector<int>&c,vector<vector<int> >&g)
+{
+	int ik,jk,pi1=0,pi2=0,pj1=0,pj2=0;
+	if(c.size()==2)
+	{
+		c.clear();
+		for(int i=0;i<g1.size();i++)
+		{
+			for(int j=0;j<g2.size();j++)
+			{
+				if(g1[i]==g2[j])
+				{
+					c.push_back(g1[i]);
+					break;
+				}
+			}
+		}
+	}
+	s=1;
+	if(c.size()>=k)
+	{
+	int count=0;
+	l=k;
+	ndex.clear();
+	while(l--)
+	{
+		ndex.push_back(count);
+		count++;
+	}
+	while(s>0)
+	{
+		dd.clear();
+		for(int i=0;i<k;i++)
+		{
+			for(int j=0;j<node.size();j++)
+			{
+				if(node[j]==c[ndex[i]])
+				{
+					posi=j;
+					break;
+				}
+			}
+			int zx=0;
+			for(int j=0;j<k;j++)
+			{
+				for(int h=0;h<g[posi].size();h++)
+				{
+					if(c[ndex[j]]==g[posi][h])
+					{
+						zx++;
+					}
+				}
+			}
+			dd.push_back(zx);
+		}
+		int bb=1;
+		for(int i=0;i<k;i++)
+		{
+			if(dd[i]!=k-1)
+			{
+				bb=0;
+				break;	
+			}
+		}
+		if(bb==1)
+		{
+			ph.clear();
+			for(int i=0;i<k;i++)
+			{
+				ph.push_back(c[ndex[i]]);
+			}
+			kc.push_back(ph);
+		}
+		if(ndex[0]==(c.size()-k) and ndex[k-1]==c.size()-1)
+		{
+			s=0;
+		}
+		else
+		{
+		for(int i=k-1;i>=0;i--)
+		{
+			if(ndex[i]-i<(c.size()-k))
+			{
+				ndex[i]++;
+				p=ndex[i];
+				i++;
+				while(i<k)
+				{
+					p++;
+					ndex[i]=p;
+					i++;
+				}
+				break;
+			}
+		}
+		}
+	}
+	}
+	/*cout<<kc.size()<<endl;
+	for(int i=0;i<kc.size();i++)
+	{
+		for(int j=0;j<kc[i].size();j++)
+		{
+			cout<<kc[i][j]<<" ";
+		}
+		cout<<endl;
+	}*/
+}
+void addnonexternaledge(int e1,int e2,vector<vector<int> >&g)
+{
+	kc.clear();
+	kclique(ed,g);
+	temp.clear();
+	if(kc.size()>0)
+	{
+	temp.push_back(kc[0]);
+	for(int i=1;i<kc.size();i++)
+	{
+		int f=0;
+		for(int j=0;j<temp.size();j++)
+		{
+			f=checkcommon(kc[i],temp[j]);
+			if(f==1)
+			{
+				ix=j;
+				break;
+			}
+		}
+		if(f==0)
+		{
+			temp.push_back(kc[i]);
+		}
+		else
+		{
+			temp[ix].push_back(ce);
+		}
+	}
+	final.clear();
+	for(int i=0;i<kc.size();i++)
+	{
+		for(int j=0;j<ac.size();j++)
+		{
+			int f=0;
+			f=checkcommon(kc[i],ac[j]);
+			if(f==1)
+			{
+				final.push_back(j);
+			}
+		}
+	}
+	sort(final.begin(),final.end());
+	ffinal.clear();
+	for(int i=1;i<final.size();i++)
+	{
+		if(final[i]==final[i-1])
+		{
+			ffinal.push_back(final[i]);
+		}
+	}
+	for(int i=0;i<ffinal.size();i++)
+	{
+		final.erase(final.begin()+ffinal[i]);
+	}
+	for(int i=1;i<final.size();i++)
+	{
+		for(int j=0;j<ac[final[i]].size();j++)
+		{
+			int cc=0;
+			for(int k=0;k<ac[final[0]].size();k++)
+			{
+				if(ac[final[i]][j]==ac[final[0]][k])
+				{
+					cc=1;
+					break;
+				}
+			}
+			if(cc==0)
+			{
+				ac[final[0]].push_back(ac[final[i]][j]);
+			}
+		}
+	}
+	if(final.size()>0)
+	{
+	for(int i=0;i<temp.size();i++)
+	{
+		for(int j=0;j<temp[i].size();j++)
+		{
+			int dfg=0;
+			for(int k=0;k<ac[final[0]].size();k++)
+			{
+				if(temp[i][j]==ac[final[0]][k])
+				{
+					dfg=1;
+					break;
+				}
+			}
+			if(dfg==0)
+			{
+				ac[final[0]].push_back(temp[i][j]);
+			}
+		}
+	}
+    }
+    else
+    {
+    	for(int i=0;i<temp.size();i++)
+    	{
+    		ac.push_back(temp[i]);
+		}
+	}
+	for(int i=1;i<final.size();i++)
+	{
+		ac.erase(ac.begin()+final[i]);
+	}
+	}
+}
